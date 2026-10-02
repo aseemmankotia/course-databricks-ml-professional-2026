@@ -1,0 +1,16 @@
+## Chapter 8: Testing ML Pipelines: Unit and Integration Tests for Production ML — Flashcards
+
+| # | Front (Question) | Back (Answer) |
+|---|-----------------|---------------|
+| 1 | Best practice for unit testing Spark-dependent feature transform logic in CI without a cluster? | Use a local SparkSession (master('local[*]')) in a pytest fixture with small in-memory DataFrames — runs in-process, no cluster needed. Exam tip: isolate business logic into pure functions where possible for the fastest tests. |
+| 2 | What two properties should a unit test check on a PyFunc model's predict() output? | Type (e.g., pandas.DataFrame / np.ndarray) and shape (output row count matches input row count). Exam tip: also check expected output column names for structured outputs. |
+| 3 | Databricks Asset Bundle CLI command to deploy to the staging target? | `databricks bundle deploy -t staging`. Exam tip: always validate in staging before running `-t prod`. |
+| 4 | Databricks Asset Bundle CLI command to run a job in a specific target? | `databricks bundle run -t staging <job-key>`. Exam tip: job-key comes from the `resources` section of databricks.yml. |
+| 5 | Unit test vs. Integration test in an ML pipeline — key difference? | Unit test: validates one function (e.g., a feature transform) in isolation, no cluster/external deps. Integration test: runs a scaled-down version of the whole pipeline end-to-end in a real job, verifying artifacts like a registered model and logged metrics. |
+| 6 | What library is commonly used for Spark DataFrame equality assertions in pytest? | chispa (assert_df_equality). Exam tip: use it instead of manual row-by-row comparisons for readable, maintainable Spark unit tests. |
+| 7 | What should a model quality gate compare before promotion? | The candidate model's evaluation metric (e.g., F1/AUC) on a holdout set vs. the current production/champion model's metric on the same set — only promote (set alias / transition) if the threshold or improvement is met. |
+| 8 | In Unity Catalog Model Registry, how is a model marked production-ready? | Via aliases (e.g., @champion, @challenger) set with set_registered_model_alias() — not the legacy Staging/Production stages used by the deprecated Workspace Model Registry. |
+| 9 | Which data validation checks should run BEFORE training (exam-tested)? | Schema check, null check (e.g., df.filter(col.isNull()).count() == 0), and value-range check. Fail fast with a clear assertion error before calling .fit(). |
+| 10 | Why avoid full-scale Spark DataFrames in unit tests? | Full Spark DataFrames require a cluster or a heavier local session, slowing feedback. Use small in-memory data (Pandas or local SparkSession) for unit tests; reserve real cluster-scale runs for integration tests. |
+| 11 | Where should integration tests run — dev, staging, or prod target of an Asset Bundle? | Staging — it validates the full job definition and pipeline against near-production configuration with a scaled-down dataset before promoting the bundle to prod. |
+| 12 | Idiomatic pytest fixture pattern for fast Spark unit tests? | `@pytest.fixture(scope='session')\ndef spark():\n    return SparkSession.builder.master('local[*]').getOrCreate()` — reused across tests. Exam tip: session scope avoids repeated SparkSession startup cost. |

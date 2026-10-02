@@ -1,0 +1,16 @@
+## Chapter 5: Model Development Scenarios: Choosing the Right Approach Under Exam Pressure — Flashcards
+
+| # | Front (Question) | Back (Answer) |
+|---|-----------------|---------------|
+| 1 | pandas Function API — best use case keyword? | 'Independent groups' (e.g., one model per store/region). Distributes many independent, single-node model trainings across a Spark cluster via applyInPandas/mapInPandas. Exam tip: NOT for tuning one model's hyperparameters. |
+| 2 | Optuna — best use case keyword? | 'Single model, many trials.' Efficient sampling (TPE) hyperparameter search on Databricks ML Runtime. Exam tip: current recommended replacement for deprecated Hyperopt. |
+| 3 | Ray Tune — best use case keyword? | 'Huge search space + cluster.' Distributes hyperparameter trials (or training) across many nodes with early-stopping schedulers. Exam tip: choose over Optuna when the search space is too large for one node. |
+| 4 | Spark DataFrame/SQL vs Spark MLlib — what does each distribute? | DataFrame/SQL transforms = distributed DATA PREP. MLlib algorithms = distributed MODEL TRAINING of a single model. Exam tip: don't confuse data-prep parallelism with training parallelism. |
+| 5 | Point-in-time correctness — clue words in a scenario? | 'Features must reflect what was known at prediction time', 'avoid future leakage', 'timestamp-based join'. Signals Feature Store point-in-time lookup, not a regular join. |
+| 6 | When is a custom mlflow.pyfunc.PythonModel required instead of a plain sklearn flavor? | When the model needs custom preprocessing, combines multiple underlying models with custom logic, or needs a non-standard predict() signature. Exam tip: plain flavor only fits a single unmodified estimator. |
+| 7 | mlflow nested runs — command syntax? | `with mlflow.start_run(nested=True):` inside a parent `with mlflow.start_run():` block. Exam tip: logs each hyperparameter trial as a child run under one parent run. |
+| 8 | Databricks ML Runtime tuning library status: Hyperopt vs Optuna? | Hyperopt is deprecated on current Databricks ML Runtimes; Optuna is the recommended replacement for hyperparameter tuning. Exam tip: expect Optuna as the answer for single-model tuning scenarios. |
+| 9 | Scenario decomposition technique — first step? | Extract the pattern keyword before reading answer options: 'independent groups' / 'single model many trials' / 'huge search space + cluster'. Exam tip: map keyword to tool BEFORE evaluating distractors. |
+| 10 | Time-boxing dense scenario questions — rule of thumb? | Spend roughly 60-90 seconds extracting the decision keyword; don't re-read the full scenario more than twice. Exam tip: default to the most 'independent/parallel' cue if no exact match. |
+| 11 | Delta Lake time travel vs Feature Store point-in-time lookup — difference? | Time travel restores an entire table to a prior version/timestamp. Point-in-time lookup performs a row-wise AS-OF join per training example's timestamp. Exam tip: leakage-prevention scenarios need point-in-time lookup. |
+| 12 | VotingClassifier vs custom PyFunc for ensembling — when does plain sklearn flavor suffice? | If the ensemble logic can be expressed as a native sklearn estimator (e.g., VotingClassifier) with no extra custom preprocessing, plain sklearn flavor works. Custom weighting/preprocessing requires PyFunc. |

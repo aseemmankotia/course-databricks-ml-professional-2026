@@ -1,0 +1,16 @@
+## Chapter 3: Advanced MLflow: Autologging, Nested Runs, Signatures, and Custom PyFunc — Flashcards
+
+| # | Front (Question) | Back (Answer) |
+|---|-----------------|---------------|
+| 1 | mlflow.autolog() must be called relative to training code — before or after model.fit()? | BEFORE. Autologging works by patching framework training methods (.fit(), Trainer.fit()); calling it after training has already run captures nothing. Exam tip: order matters. |
+| 2 | Default value of log_input_examples in mlflow.autolog()? | False. log_model_signatures and log_models default to True, but log_input_examples defaults to False (avoids storing potentially large/sensitive sample data automatically). |
+| 3 | Code to create a child run under an already-active parent run? | with mlflow.start_run(nested=True): ... — must be called while a parent run context is already open, otherwise MLflow raises an exception. |
+| 4 | Required method(s) to implement in a custom mlflow.pyfunc.PythonModel subclass? | predict(self, context, model_input) is required. load_context(self, context) is optional, used to load bundled artifacts (e.g., a pickled scaler) before inference. |
+| 5 | How do you bundle a preprocessing object (e.g., scaler.pkl) with a custom PyFunc model? | Pass artifacts={'scaler': 'path/to/scaler.pkl'} to mlflow.pyfunc.log_model(). Retrieve it in load_context() via context.artifacts['scaler']. |
+| 6 | Manual training loop (raw PyTorch, no Trainer/Estimator API) + mlflow.autolog() — what gets logged automatically? | Nothing. Autologging only patches high-level APIs (e.g., Lightning Trainer, sklearn .fit()). Manual loops require explicit mlflow.log_metric()/log_param() calls. |
+| 7 | What triggers automatic model signature inference at log_model() time? | Passing input_example= to log_model(). MLflow infers input/output schema from the example and validates the model can score it, catching mismatches immediately. |
+| 8 | Signature vs input_example — which one is enforced at serving time? | The signature (schema of names/types/shapes) is enforced at serving/load_model time. input_example is just a sample record, often used to derive that signature. |
+| 9 | mlflow.autolog() (generic) vs mlflow.sklearn.autolog() (flavor-specific) — key difference? | mlflow.autolog() enables autologging across ALL detected supported flavors in the environment; the flavor-specific call (e.g., mlflow.sklearn.autolog()) scopes autologging to just that library and its specific config options. |
+| 10 | Command to log a custom PyFunc model with bundled artifacts? | mlflow.pyfunc.log_model(artifact_path='model', python_model=MyModel(), artifacts={'scaler': scaler_path}, input_example=sample_df) |
+| 11 | How do you log a custom evaluation metric not captured by autologging (e.g., business KPI)? | mlflow.log_metric('custom_kpi', value) — call manually inside your training/eval code; autologging only captures framework-native metrics (loss, accuracy, etc.), never custom business metrics. |
+| 12 | Nested run pattern for hyperparameter search — what's the parent/child structure? | Parent run = overall sweep (logs best params/summary). Each trial = child run via start_run(nested=True) inside the parent's context, logging that trial's params/metrics individually. |
